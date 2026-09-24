@@ -32,3 +32,9 @@ The system needs to know:
 
 >maybe add category
 
+# User Stories
+
+1) **As a** resident **I want** to add a tool that I am willing to lend so that other residents can borrow it.
+2) **As a** resident, **I want** to view all available tools so that I can find something to borrow.
+3) **As a** resident, **I want** to mark a tool as on loan or available so that the system shows its current availability.
+4) **As a** resident, **I want** to remove a tool from the library so that it is no longer available for borrowing.

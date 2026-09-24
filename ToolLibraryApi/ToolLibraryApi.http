@@ -1,0 +1,6 @@
+@ToolLibraryApi_HostAddress = http://localhost:5049
+
+GET {{ToolLibraryApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
