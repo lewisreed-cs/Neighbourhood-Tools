@@ -50,5 +50,40 @@ public class ResidentsController : ControllerBase
             resident);
     }
 
-    
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<Resident>> UpdateResident(int id, UpdateResidentDto dto)
+    {
+        var resident = await _context.Residents.FindAsync(id);
+        if (resident == null) return NotFound("Resident does not exist.");
+
+        if (dto.Name != null) resident.Name = dto.Name;
+        if (dto.Email != null) resident.Email = dto.Email;
+        if (dto.PhoneNumber != null) resident.PhoneNumber = dto.PhoneNumber;
+
+        await _context.SaveChangesAsync();
+        return Ok(resident);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteResident(int id)
+    {
+        var resident = await _context.Residents.FindAsync(id);
+
+        if (resident == null) return NotFound("Resident does not exist.");
+
+        bool ownsTools = await _context.Tools
+            .AnyAsync(t => t.OwnerId == id);
+
+        if (ownsTools)
+        {
+            return BadRequest("Cannot delete a resident who owns tools.");
+        }
+
+        _context.Residents.Remove(resident);
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
 }

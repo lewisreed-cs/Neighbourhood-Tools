@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToolLibraryApi.Data;
@@ -59,6 +60,46 @@ public class LoansController : ControllerBase
             nameof(GetLoanById),
             new { id = loan.Id },
             loan);
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<Loan>> UpdateLoan(int id, UpdateLoanDto dto)
+    {
+        var loan = await _context.Loans.FindAsync(id);
+        if (loan == null) return NotFound("Loan does not exist.");
+
+        if (!dto.ReturnDate.HasValue) return BadRequest("Return date is required.");
+
+        if (loan.ReturnDate != null) return BadRequest("Loan has already been returned.");
+
+        if (dto.ReturnDate.Value <= loan.LoanDate) return BadRequest("Return date occurs before the loan date.");
+
+        var tool = await _context.Tools.FindAsync(loan.ToolId);
+        tool!.Status = "Available";
+
+        loan.ReturnDate = dto.ReturnDate.Value;
+
+        await _context.SaveChangesAsync();
+        return Ok(loan);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteLoan(int id)
+    {
+        var loan = await _context.Loans.FindAsync(id);
+
+        if (loan == null) return NotFound("Loan does not exist.");
+
+        if (loan.ReturnDate == null)
+        {
+            return BadRequest("Cannot delete an active loan.");
+        }
+
+        _context.Loans.Remove(loan);
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
     
 }
