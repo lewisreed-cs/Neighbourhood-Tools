@@ -6,4 +6,5 @@ public class Resident
     public string Name { get; set; } = "";
     public string Email { get; set; } = "";
     public string PhoneNumber { get; set; } = "";
+    public ICollection<Tool> Tools { get; set; } = [];
 }

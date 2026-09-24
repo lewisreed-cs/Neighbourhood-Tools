@@ -8,4 +8,5 @@ public class Tool
     public decimal Weight { get; set; }
     public string Status { get; set; } = "Available";
     public int OwnerId { get; set; }
+    public Resident? Owner { get; set; }
 }

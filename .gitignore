@@ -7,4 +7,4 @@ obj/
 *.user
 *.suo
 
-tools.db
+tools.db*

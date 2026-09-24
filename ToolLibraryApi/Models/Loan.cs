@@ -7,4 +7,6 @@ public class Loan
     public int BorrowerId { get; set; }
     public DateTime LoanDate { get; set; }
     public DateTime? ReturnDate { get; set; }
+    public Tool? Tool { get; set; }
+    public Resident? Borrower { get; set; }
 }

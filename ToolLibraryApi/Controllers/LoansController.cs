@@ -48,6 +48,5 @@ public class LoansController : ControllerBase
             new { id = loan.Id },
             loan);
     }
-
     
 }
