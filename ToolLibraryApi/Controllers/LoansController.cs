@@ -34,6 +34,17 @@ public class LoansController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Loan>> CreateLoan(CreateLoanDto dto)
     {
+        bool borrowerExists = await _context.Residents
+            .AnyAsync(r => r.Id == dto.BorrowerId);
+
+        if (!borrowerExists) return BadRequest("Borrower does not exist.");
+
+        var tool = await _context.Tools.FindAsync(dto.ToolId);
+        if (tool == null) return BadRequest("Tool does not exist.");
+
+        if (tool.Status == "On Loan") return BadRequest("Tool is already on loan.");
+        tool.Status = "On Loan";
+
         var loan = new Loan
         {
             ToolId = dto.ToolId,

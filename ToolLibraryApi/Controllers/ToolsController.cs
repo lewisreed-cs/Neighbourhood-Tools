@@ -34,6 +34,11 @@ public class ToolsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Tool>> CreateTool(CreateToolDto dto)
     {
+        bool ownerExists = await _context.Residents
+            .AnyAsync(r => r.Id == dto.OwnerId);
+
+        if (!ownerExists) return BadRequest("Owner does not exist.");
+
         var tool = new Tool
         {
             Name = dto.Name,
