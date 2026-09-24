@@ -37,7 +37,8 @@ public class LoansController : ControllerBase
         var loan = new Loan
         {
             ToolId = dto.ToolId,
-            BorrowerId = dto.BorrowerId
+            BorrowerId = dto.BorrowerId,
+            LoanDate = DateTime.UtcNow
         };
 
         _context.Loans.Add(loan);
