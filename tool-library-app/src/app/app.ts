@@ -29,6 +29,10 @@ interface Loan {
 
 type View = 'overview' | 'tools' | 'residents' | 'loans';
 type Modal = 'tool' | 'resident' | 'loan' | null;
+interface DeleteConfirmation {
+  message: string;
+  onConfirm: () => void;
+}
 
 @Component({
   imports: [CommonModule, FormsModule],
@@ -54,6 +58,7 @@ export class App {
   protected readonly editingId = signal<number | null>(null);
   protected readonly saving = signal(false);
   protected readonly detailLoan = signal<Loan | null>(null);
+  protected readonly deleteConfirmation = signal<DeleteConfirmation | null>(null);
   protected readonly returnDates = new Map<number, string>();
 
   protected readonly toolForm = { name: '', description: '', weight: 1, ownerId: 0 };
@@ -141,8 +146,7 @@ export class App {
   }
 
   protected deleteTool(tool: Tool): void {
-    if (!confirm(`Delete ${tool.name}?`)) return;
-    this.runDelete(`${this.apiUrl}/tools/${tool.id}`, () => this.tools.update((items) => items.filter((item) => item.id !== tool.id)));
+    this.askDelete(`Delete ${tool.name}?`, () => this.runDelete(`${this.apiUrl}/tools/${tool.id}`, () => this.tools.update((items) => items.filter((item) => item.id !== tool.id))));
   }
 
   protected openAddResident(): void {
@@ -180,8 +184,7 @@ export class App {
   }
 
   protected deleteResident(resident: Resident): void {
-    if (!confirm(`Delete ${resident.name}?`)) return;
-    this.runDelete(`${this.apiUrl}/residents/${resident.id}`, () => this.residents.update((items) => items.filter((item) => item.id !== resident.id)));
+    this.askDelete(`Delete ${resident.name}?`, () => this.runDelete(`${this.apiUrl}/residents/${resident.id}`, () => this.residents.update((items) => items.filter((item) => item.id !== resident.id))));
   }
 
   protected openAddLoan(): void {
@@ -222,8 +225,7 @@ export class App {
   }
 
   protected deleteLoan(loan: Loan): void {
-    if (!confirm(`Delete this ${loan.returnDate ? 'completed' : 'active'} loan?`)) return;
-    this.runDelete(`${this.apiUrl}/loans/${loan.id}`, () => this.loans.update((items) => items.filter((item) => item.id !== loan.id)));
+    this.askDelete(`Delete this ${loan.returnDate ? 'completed' : 'active'} loan?`, () => this.runDelete(`${this.apiUrl}/loans/${loan.id}`, () => this.loans.update((items) => items.filter((item) => item.id !== loan.id))));
   }
 
   protected closeModal(): void {
@@ -234,6 +236,16 @@ export class App {
 
   protected closeLoanDetail(): void {
     this.detailLoan.set(null);
+  }
+
+  protected cancelDelete(): void {
+    this.deleteConfirmation.set(null);
+  }
+
+  protected confirmDelete(): void {
+    const confirmation = this.deleteConfirmation();
+    this.deleteConfirmation.set(null);
+    confirmation?.onConfirm();
   }
 
   protected openModal(modal: Modal): void {
@@ -281,6 +293,11 @@ export class App {
       next: () => { update(); this.refresh(); },
       error: (response) => this.actionError.set(this.readError(response)),
     });
+  }
+
+  private askDelete(message: string, onConfirm: () => void): void {
+    this.actionError.set('');
+    this.deleteConfirmation.set({ message, onConfirm });
   }
 
   private toDateTimeInput(date: Date): string {
