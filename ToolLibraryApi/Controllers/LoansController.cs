@@ -46,6 +46,11 @@ public class LoansController : ControllerBase
         if (tool.Status == "On Loan") return BadRequest("Tool is already on loan.");
         tool.Status = "On Loan";
 
+        if (tool.OwnerId == dto.BorrowerId)
+        {
+            return BadRequest("Cannot borrow your own tool.");
+        }
+
         var loan = new Loan
         {
             ToolId = dto.ToolId,
